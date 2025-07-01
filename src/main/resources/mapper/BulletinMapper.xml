@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanqiao.blog.mapper.BulletinMapper">
+    <!-- 公告基础结果映射 -->
+    <resultMap id="BulletinResultMap" type="cn.lanqiao.blog.model.pojo.Bulletins">
+        <id column="bulletin_id" property="bulletinId" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="image_url" property="imageUrl" />
+        <result column="view_count" property="viewCount" />
+        <result column="comment_count" property="commentCount" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="published_at" property="publishedAt" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <!-- 公告评论结果映射 -->
+    <resultMap id="BulletinCommentResultMap" type="cn.lanqiao.blog.model.pojo.BulletinComment" extends="BulletinResultMap">
+        <id column="comment_id" property="commentId" />
+        <result column="bulletin_id" property="bulletinId" />
+        <result column="user_id" property="userId" />
+        <result column="author_name" property="authorName" />
+        <result column="content" property="content" />
+        <result column="status" property="status" />
+        <result column="created_at" property="createdAt" />
+        <!-- 关联用户信息 -->
+        <association property="user" javaType="cn.lanqiao.blog.model.pojo.Users">
+            <id column="u_user_id" property="userId" />
+            <result column="username" property="username" />
+            <result column="avatar_url" property="avatarUrl" />
+        </association>
+    </resultMap>
+
+    <!-- 查询所有公告 -->
+    <select id="selectAllBulletins" resultMap="BulletinResultMap">
+        SELECT b.*,
+               (select count(*)
+                from
+                    bulletin_comments bc
+            where bc.bulletin_id = b.bulletin_id and bc.status = 'approved') as comment_count
+        FROM bulletins b
+        WHERE b.status = 'published'
+        ORDER BY b.published_at DESC
+    </select>
+    <!-- 增加浏览次数 -->
+    <update id="incrementViewCount">
+        UPDATE bulletins
+        SET view_count = view_count + 1
+        WHERE bulletin_id = #{bulletinId}
+    </update>
+
+    <!-- 查询公告的评论列表 -->
+    <select id="selectCommentsByBulletinId" resultMap="BulletinCommentResultMap">
+        SELECT
+            c.comment_id, c.bulletin_id, c.user_id, c.author_name,
+            c.content, c.status, c.created_at,
+            u.user_id AS u_user_id, u.username, u.avatar_url
+        FROM bulletin_comments c
+                 LEFT JOIN users u ON c.user_id = u.user_id
+        WHERE c.bulletin_id = #{bulletinId} AND c.status = 'approved'
+        ORDER BY c.created_at DESC
+    </select>
+
+    <!-- 插入公告评论 -->
+    <insert id="insertBulletinComment" parameterType="cn.lanqiao.blog.model.pojo.BulletinComment"
+        useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO bulletin_comments (
+            bulletin_id, user_id, author_name, content, status, created_at
+        ) VALUES (
+                     #{bulletinId}, #{userId}, #{authorName}, #{content}, 'approved', NOW()
+                 )
+    </insert>
+
+    <!-- 更新公告评论数量 -->
+    <select id="commentCount">
+        select count(*) from bulletin_comments
+        where bulletin_id = #{id} and status = 'approved'
+    </select>
+    <select id="selectById" resultMap="BulletinResultMap">
+        select b.*,
+        (select count(*) from bulletin_comments bc
+        where bc.bulletin_id = b.bulletin_id and bc.status = 'approved')as comment_count
+            from bulletins b
+        where b.bulletin_id = #{id}
+    </select>
+</mapper>

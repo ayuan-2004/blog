@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanqiao.blog.mapper.CategoriesMapper">
+    <resultMap id="postMap" type="cn.lanqiao.blog.model.vo.PostVo">
+        <id column="post_id" property="postId"/>
+        <result column="title" property="title"/>
+        <result column="slug" property="slug"/>
+        <result column="content" property="content"/>
+
+        <result column="author_id" property="authorId"/>
+        <result column="status" property="status"/>
+        <result column="featured_image" property="featuredImage"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="comment_count" property="commentCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="published_at" property="publishedAt"/>
+
+
+        <!-- 分类集合 -->
+        <collection property="categories" ofType="cn.lanqiao.blog.model.dto.CategoryDTO">
+            <id column="category_id" property="categoryId"/>
+            <result column="name" property="categoryName"/>
+        </collection>
+    </resultMap>
+    <resultMap id="categories" type="cn.lanqiao.blog.model.pojo.Categories">
+        <id column="category_id" property="categoryId"/>
+        <result column="name" property="name"/>
+        <result column="slug" property="slug"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="description" property="description"/>
+    </resultMap>
+    <select id="getList" resultMap="categories">
+        select * from categories
+    </select>
+    <select id="selectPostsByCategoryId" resultMap="postMap">
+        select
+            p.*
+        from
+            posts p
+        inner join post_category pc on p.post_id = pc.post_id
+        where
+            pc.category_id=#{categoryId}
+        and
+            p.status = 'published'
+
+    </select>
+</mapper>

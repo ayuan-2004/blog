@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.lanqiao.blog.mapper.UserMapper">
+    <resultMap id="userMap" type="cn.lanqiao.blog.model.pojo.Users">
+        <id property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="passwordHash" column="password_hash"/>
+        <result property="displayName" column="display_name"/>
+        <result property="avatarUrl" column="avatar_url"/>
+        <result property="sex" column="sex"/>
+        <result property="bio" column="bio"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="crated_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+<insert id="addUser">
+        insert into users
+        values (null,#{username},#{email},#{passwordHash},0,#{username},#{avatarUrl},#{bio},#{status},#{createdAt},#{updatedAt})
+</insert>
+<update id="updateUser">
+    update
+        users
+    <set>
+        <if test="username != null">username=#{username},</if>
+        <if test="email != null">email=#{email},</if>
+        <if test="passwordHash != null">password_hash=#{passwordHash},</if>
+        <if test="displayName != null">display_name=#{displayName},</if>
+        <if test="avatarUrl != null">avatar_url=#{avatarUrl},</if>
+        <if test="bio != null">bio=#{bio},</if>
+        <if test="status != null">status=#{status},</if>
+        <if test="updatedAt != null">updated_at=#{updatedAt},</if>
+    </set>
+    where user_id=#{userId}
+</update>
+</mapper>

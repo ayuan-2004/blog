@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/blog?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&characterSetResults=utf8&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  mybatis:
+    mapper-locations: classpath*:mapper/*.xml
+    type-aliases-package: cn.lanqiao.blog.model.pojo
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 150MB
+      file-size-threshold: 2MB
+      location: ${java.io.tmpdir}
+
+  # 七牛云配置 (移动到正确位置)
+  qiniu:
+    access-key: 'AptTKFqo5b7cnLIVo_GuDLifdUWaEiT0upgBTr8V'
+    secret-key: 'mHfxR0WFpFUid80QMjhgTsArcsJlzOhCkKoTDfMq'
+    bucket: 'niyablog'
+    domain: 'sxkuv2a2t.hn-bkt.clouddn.com'
+    protocol: http
+    zone: z2
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /api-docs.html
+    tags-sorter: alpha
+  api-docs:
+    path: /api-docs.json
