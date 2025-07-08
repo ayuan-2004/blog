@@ -141,4 +141,9 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.updateView(postId);
         return articleMapper.getByPostId(postId);
     }
+
+    @Override
+    public List<Posts> getHotPage() {
+        return articleMapper.getHotPage();
+    }
 }

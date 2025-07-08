@@ -39,7 +39,8 @@
     </select>
     <select id="selectPostsByCategoryId" resultMap="postMap">
         select
-            p.*
+            p.*,
+        (select count(*) from comments c where c.post_id = p.post_id) as comment_count
         from
             posts p
         inner join post_category pc on p.post_id = pc.post_id
@@ -47,6 +48,5 @@
             pc.category_id=#{categoryId}
         and
             p.status = 'published'
-
     </select>
 </mapper>

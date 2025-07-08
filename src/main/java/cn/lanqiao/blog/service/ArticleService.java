@@ -23,4 +23,6 @@ public interface ArticleService {
     List<Tags> selectTags();
 
     Posts updateView(Long postId);
+
+    List<Posts> getHotPage();
 }

@@ -36,4 +36,6 @@ public interface ArticleMapper{
     void updateView(Long postId);
 
     void delete(Long postId);
+
+    List<Posts> getHotPage();
 }

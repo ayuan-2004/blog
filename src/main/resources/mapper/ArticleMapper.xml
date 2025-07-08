@@ -17,7 +17,8 @@
         <result column="created_at" property="createdAt"/>
         <result column="updated_at" property="updatedAt"/>
         <result column="published_at" property="publishedAt"/>
-<!--        <result column="deleted_at" property="deletedAt"/>-->
+        <result column="hot_score" property="hotScore"/>
+<!--        <result column="tags" property="tags"/>-->
 
         <!-- 关联用户信息 -->
         <association property="user" javaType="cn.lanqiao.blog.model.pojo.Users">
@@ -27,6 +28,10 @@
             <result property="displayName" column="display_name"/>
             <result property="avatarUrl" column="avatar_url"/>
             <result property="bio" column="bio"/>
+            <result property="followerCount" column="follower_count"/>
+            <result property="followingCount" column="following_count"/>
+            <result property="postCount" column="post_count"/>
+            <result property="likeCount" column="like_count"/>
         </association>
 
         <!-- 分类集合(延迟加载) -->
@@ -41,6 +46,7 @@
             <id column="tag_id" property="tagId"/>
             <result column="name" property="name"/>
         </collection>
+
         <collection property="postImages" ofType="cn.lanqiao.blog.model.pojo.PostImages"
                     column="post_id" select="selectImagesByPostId"/>
     </resultMap>
@@ -86,7 +92,10 @@
         select
             image_id as imageId,
             image_url as imageUrl,
-            post_id as postId
+            post_id as postId,
+            display_order as displayOrder,
+            created_at as createdAt,
+            alt_text as altText
         from post_images
         where post_id = #{postId}
     </select>
@@ -95,14 +104,25 @@
         select
             p.*,
             u.user_id,
-            u.user_id,
             u.username,
             u.email,
             u.display_name,
             u.avatar_url,
-            u.bio
+            u.bio,
+            u.follower_count,
+            u.following_count,
+            u.post_count,
+            u.like_count,
+            c.category_id as cat_category_id,
+            c.name as cat_name,
+            t.tag_id as tag_tag_id,
+            t.name as tag_name
         from posts p
-        left join users u on p.author_id = u.user_id
+                 left join users u on p.author_id = u.user_id
+                 left join post_category pc on p.post_id = pc.post_id
+                 left join categories c on pc.category_id = c.category_id
+                 left join post_tag pt on p.post_id = pt.post_id
+                 left join tags t on pt.tag_id = t.tag_id
         where p.post_id = #{postId}
     </select>
     <!-- 个人文章列表查询   -->
@@ -178,4 +198,31 @@
     <delete id="delete">
         delete from posts where post_id = #{postId}
     </delete>
+    <!--  热门推荐  -->
+    <select id="getHotPage" resultMap="postMap">
+        select
+            p.*,
+            u.user_id,
+            u.username,
+            u.email,
+            u.display_name,
+            u.avatar_url,
+            u.bio,
+            u.follower_count,
+            u.following_count,
+            u.post_count,
+            u.like_count,
+            -- 计算评论数
+            (select count(*) from comments c where c.post_id = p.post_id) as comment_count,
+            -- 综合热度分数
+            (
+                p.view_count * 0.3
+                    + ifnull((select count(*) from likes l where l.content_type = 'post' and l.content_id = p.post_id), 0) / greatest(p.view_count, 1) * 100 * 0.25
+                    + (select count(*) from comments c where c.post_id = p.post_id) / greatest(p.view_count, 1) * 100 * 0.2
+                ) * pow(0.5, datediff(now(), p.published_at)/7) AS hot_score
+        from posts p
+                 LEFT JOIN users u ON p.author_id = u.user_id
+        where p.status = 'published'
+        order by hot_score desc , p.published_at desc
+    </select>
 </mapper>

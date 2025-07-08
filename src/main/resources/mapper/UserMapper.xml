@@ -13,6 +13,10 @@
         <result property="sex" column="sex"/>
         <result property="bio" column="bio"/>
         <result property="status" column="status"/>
+        <result property="followerCount" column="follower_count"/>
+        <result property="followingCount" column="following_count"/>
+        <result property="postCount" column="post_count"/>
+        <result property="likeCount" column="like_count"/>
         <result property="createdAt" column="crated_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>

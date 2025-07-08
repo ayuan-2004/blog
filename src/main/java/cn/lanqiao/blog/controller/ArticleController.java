@@ -31,7 +31,7 @@ public class ArticleController {
     * 通过id查询文章详情
     * */
     @GetMapping("/{postId}")
-    public Result<Posts> selectById(@PathVariable("postId") Long postId){
+    public Result selectById(@PathVariable("postId") Long postId){
         return Result.success(articleService.getByPostId(postId));
     }
     /*
@@ -82,5 +82,12 @@ public class ArticleController {
     @PutMapping("/view/{postId}")
     public Result updateView(@PathVariable("postId")Long postId){
         return Result.success(articleService.updateView(postId));
+    }
+    /*
+    * 热门文章推荐
+    * */
+    @GetMapping("/hotPage")
+    public Result selectHotPage(){
+        return Result.success(articleService.getHotPage());
     }
 }

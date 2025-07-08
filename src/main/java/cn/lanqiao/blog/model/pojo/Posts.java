@@ -28,6 +28,8 @@ public class Posts {
   private String keyword;
   private Long commentCount;
   private LocalDateTime createdAt;
+  //热度
+  private Double hotScore;
 
   private LocalDateTime  updatedAt;
   private LocalDateTime publishedAt;
